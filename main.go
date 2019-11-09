@@ -19,10 +19,12 @@ import (
 	"golang.org/x/text/message"
 )
 
-const (
-	loggerZerolog = "zerolog"
-	loggerZaplog  = "zap"
+var setups = map[string]func() (FuncSet, error){
+	"zerolog": initZerolog,
+	"zap":     initZap,
+}
 
+const (
 	logOperationInfo               = "info"
 	logOperationInfoFmt            = "info_fmt"
 	logOperationInfoWithErrorStack = "info_with_error_stack"
@@ -83,29 +85,29 @@ type FuncSet struct {
 func initSetup(
 	setup func() (FuncSet, error),
 	operation string,
-) func() {
+) (func(), error) {
 	FuncSet, err := setup()
 	if err != nil {
-		log.Fatalf("init setup: %s", err)
+		return nil, err
 	}
 
 	switch operation {
 	case logOperationInfo:
-		return func() { FuncSet.Info("information") }
+		return func() { FuncSet.Info("information") }, nil
 	case logOperationInfoFmt:
-		return func() { FuncSet.InfoFmt("information", 42) }
+		return func() { FuncSet.InfoFmt("information", 42) }, nil
 	case logOperationInfoWithErrorStack:
 		err := errors.New("error with stack trace")
-		return func() { FuncSet.InfoWithErrorStack("information", err) }
+		return func() { FuncSet.InfoWithErrorStack("information", err) }, nil
 	case logOperationError:
-		return func() { FuncSet.Error("error message") }
+		return func() { FuncSet.Error("error message") }, nil
 	case logOperationInfoWith3:
 		fields := &Fields3{
 			Name1: "field1", Value1: "some textual value",
 			Name2: "field_2_int", Value2: 42,
 			Name3: "field_3_float_64", Value3: 42.5,
 		}
-		return func() { FuncSet.InfoWith3("information", fields) }
+		return func() { FuncSet.InfoWith3("information", fields) }, nil
 	case logOperationInfoWith10:
 		fields := &Fields10{
 			Name1: "field1", Value1: "",
@@ -126,11 +128,9 @@ func initSetup(
 				11.5, 24.9, 99.99, 50.5001, 1000.11,
 			},
 		}
-		return func() { FuncSet.InfoWith10("information", fields) }
-	default:
-		log.Fatalf("unsupported operation: %q", operation)
+		return func() { FuncSet.InfoWith10("information", fields) }, nil
 	}
-	return nil
+	return nil, fmt.Errorf("unsupported operation: %q", operation)
 }
 
 func setupTermSigInterceptor() func() bool {
@@ -147,13 +147,7 @@ func setupTermSigInterceptor() func() bool {
 			}
 		}
 	}()
-
-	return func() bool {
-		if atomic.LoadInt32(&stop) == 1 {
-			return true
-		}
-		return false
-	}
+	return func() bool { return atomic.LoadInt32(&stop) == 1 }
 }
 
 // MemStats represents memory related statistics
@@ -205,7 +199,7 @@ func setupMemoryWatcher(interval time.Duration) (read chan MemStats) {
 	return
 }
 
-var flagLogger = flag.String("l", loggerZaplog, "logger")
+var flagLogger = flag.String("l", "", "logger")
 var flagOperation = flag.String("o", logOperationInfo, "operation")
 var flagTarget = flag.Uint64(
 	"t",
@@ -275,15 +269,19 @@ func main() {
 	stopped := setupTermSigInterceptor()
 	memStatChan := setupMemoryWatcher(*flagMemCheckInterval)
 
+	if *flagLogger == "" {
+		log.Fatal("no logger selected")
+	}
+
 	// Initialize benchmark function
-	var fn func()
-	switch *flagLogger {
-	case loggerZerolog:
-		fn = initSetup(initZerolog, *flagOperation)
-	case loggerZaplog:
-		fn = initSetup(initZap, *flagOperation)
-	default:
-		log.Fatalf("unsupported logger: %q", *flagLogger)
+	setupFn, setupExists := setups[*flagLogger]
+	if !setupExists {
+		log.Fatalf("no setup for logger %q", *flagLogger)
+	}
+
+	fn, err := initSetup(setupFn, *flagOperation)
+	if err != nil {
+		log.Fatalf("setup %q init: %s", *flagLogger, err)
 	}
 
 	// Execute benchmark
