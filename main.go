@@ -66,8 +66,20 @@ func main() {
 		"", // Disabled by default
 		"memory profile output file (disabled when empty)",
 	)
+	flagOperationsAll := flag.Bool("o_all", false, "run all operations")
 
 	flag.Parse()
+
+	if *flagOperationsAll {
+		flagOperations.vals = []string{
+			benchmark.LogOperationInfo,
+			benchmark.LogOperationInfoFmt,
+			benchmark.LogOperationInfoWithErrorStack,
+			benchmark.LogOperationInfoWith3,
+			benchmark.LogOperationInfoWith10,
+			benchmark.LogOperationError,
+		}
+	}
 
 	// Prepare
 	stopped := setupTermSigInterceptor()
