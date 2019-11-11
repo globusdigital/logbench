@@ -15,9 +15,9 @@ import (
 	"time"
 )
 
-var setups = map[string]benchmark.SetupInit{
-	"zap":     zap.Setup,
-	"zerolog": zerolog.Setup,
+var setups = map[string]benchmark.Setup{
+	"zap":     zap.Setup(),
+	"zerolog": zerolog.Setup(),
 }
 
 // MemStats represents memory related statistics

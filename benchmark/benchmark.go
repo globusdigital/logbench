@@ -126,67 +126,100 @@ func NewFields10() *Fields10 {
 	}
 }
 
+// FnInfo represents an info logging callback function
+type FnInfo func(msg string)
+
+// FnInfoFmt represents a formatted info logging callback function
+type FnInfoFmt func(msg string, data int)
+
+// FnError represents an error logging callback function
+type FnError func(msg string)
+
+// FnInfoWithErrorStack represents an info logging callback function
+// with a stack-traced error attached
+type FnInfoWithErrorStack func(msg string, err error)
+
+// FnInfoWith3 represents an info logging callback function
+// with 3 data fields attached
+type FnInfoWith3 func(msg string, fields *Fields3)
+
+// FnInfoWith10 represents an info logging callback function
+// with 10 data fields attached
+type FnInfoWith10 func(msg string, fields *Fields10)
+
 // Setup defines the callback functions for all benchmarked cases
 type Setup struct {
-	Info               func(msg string)
-	InfoFmt            func(msg string, data int)
-	Error              func(msg string)
-	InfoWithErrorStack func(msg string, err error)
-	InfoWith3          func(msg string, fields *Fields3)
-	InfoWith10         func(msg string, fields *Fields10)
+	Info               func(io.ReadWriter) (FnInfo, error)
+	InfoFmt            func(io.ReadWriter) (FnInfoFmt, error)
+	Error              func(io.ReadWriter) (FnError, error)
+	InfoWithErrorStack func(io.ReadWriter) (FnInfoWithErrorStack, error)
+	InfoWith3          func(io.ReadWriter) (FnInfoWith3, error)
+	InfoWith10         func(io.ReadWriter) (FnInfoWith10, error)
 }
 
-// SetupInit defines the setup initialization function
-type SetupInit func(out io.ReadWriter) (Setup, error)
-
-func initSetup(
+// New creates a new benchmark instance also initializing the logger
+func New(
 	out io.ReadWriter,
-	setup SetupInit,
 	operation string,
-) (func(), error) {
+	setup Setup,
+) (*Benchmark, error) {
 	if out == nil {
 		out = os.Stdout
 	}
 
-	st, err := setup(out)
-	if err != nil {
-		return nil, err
-	}
+	bench := new(Benchmark)
 
 	switch operation {
 	case LogOperationInfo:
-		return func() { st.Info("information") }, nil
+		fn, err := setup.Info(out)
+		if err != nil {
+			return nil, err
+		}
+		bench.writeLog = func() { fn("information") }
+
 	case LogOperationInfoFmt:
-		return func() { st.InfoFmt("information", 42) }, nil
+		fn, err := setup.InfoFmt(out)
+		if err != nil {
+			return nil, err
+		}
+		bench.writeLog = func() { fn("information", 42) }
+
 	case LogOperationInfoWithErrorStack:
-		err := errors.New("error with stack trace")
-		return func() { st.InfoWithErrorStack("information", err) }, nil
+		fn, err := setup.InfoWithErrorStack(out)
+		if err != nil {
+			return nil, err
+		}
+		errVal := errors.New("error with stack trace")
+		bench.writeLog = func() { fn("information", errVal) }
+
 	case LogOperationError:
-		return func() { st.Error("error message") }, nil
+		fn, err := setup.Info(out)
+		if err != nil {
+			return nil, err
+		}
+		bench.writeLog = func() { fn("error message") }
+
 	case LogOperationInfoWith3:
+		fn, err := setup.InfoWith3(out)
+		if err != nil {
+			return nil, err
+		}
 		fields := NewFields3()
-		return func() { st.InfoWith3("information", fields) }, nil
+		bench.writeLog = func() { fn("information", fields) }
+
 	case LogOperationInfoWith10:
+		fn, err := setup.InfoWith10(out)
+		if err != nil {
+			return nil, err
+		}
 		fields := NewFields10()
-		return func() { st.InfoWith10("information", fields) }, nil
-	}
-	return nil, fmt.Errorf("unsupported operation: %q", operation)
-}
+		bench.writeLog = func() { fn("information", fields) }
 
-// New creates a new benchmark instance
-func New(
-	out io.ReadWriter,
-	operation string,
-	setup SetupInit,
-) (*Benchmark, error) {
-	fn, err := initSetup(out, setup, operation)
-	if err != nil {
-		return nil, fmt.Errorf("init: %w", err)
+	default:
+		return nil, fmt.Errorf("unsupported operation: %q", operation)
 	}
 
-	return &Benchmark{
-		writeLog: fn,
-	}, nil
+	return bench, nil
 }
 
 // Benchmark is a log benchmark
