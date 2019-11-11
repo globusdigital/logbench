@@ -10,32 +10,49 @@ import (
 // and the according list validators
 type FV map[string]func(interface{}) error
 
-func validateTime(actual interface{}) error {
+func expectString(actual interface{}) (string, error) {
 	val, ok := actual.(string)
 	if !ok {
-		return fmt.Errorf(
+		return "", fmt.Errorf(
 			"unexpected field type (expected: string; got: %s)",
 			reflect.TypeOf(actual),
 		)
 	}
-	_, err := time.Parse(time.RFC3339, val)
+	return val, nil
+}
+
+func expectFloat64(actual interface{}) (float64, error) {
+	val, ok := actual.(float64)
+	if !ok {
+		return 0, fmt.Errorf(
+			"unexpected field type (expected: int; got: %s)",
+			reflect.TypeOf(actual),
+		)
+	}
+	return val, nil
+}
+
+func validateTime(actual interface{}) error {
+	val, err := expectString(actual)
+	if err != nil {
+		return err
+	}
+
+	_, err = time.Parse(time.RFC3339, val)
 	return err
 }
 
 func newValidatorLevel(expected string) func(interface{}) error {
 	return func(actual interface{}) error {
-		val, ok := actual.(string)
-		if !ok {
-			return fmt.Errorf(
-				"unexpected field type (expected: string; got: %s)",
-				reflect.TypeOf(actual),
-			)
+		val, err := expectString(actual)
+		if err != nil {
+			return err
 		}
 		if val != expected {
 			return fmt.Errorf(
 				"mismatching level: (expected: %q, got: %q)",
 				expected,
-				actual,
+				val,
 			)
 		}
 		return nil
@@ -44,18 +61,15 @@ func newValidatorLevel(expected string) func(interface{}) error {
 
 func newValidatorText(expected string) func(interface{}) error {
 	return func(actual interface{}) error {
-		val, ok := actual.(string)
-		if !ok {
-			return fmt.Errorf(
-				"unexpected field type (expected: string; got: %s)",
-				reflect.TypeOf(actual),
-			)
+		val, err := expectString(actual)
+		if err != nil {
+			return err
 		}
 		if val != expected {
 			return fmt.Errorf(
 				"mismatching text: (expected: %q, got: %q)",
 				expected,
-				actual,
+				val,
 			)
 		}
 		return nil
@@ -64,18 +78,15 @@ func newValidatorText(expected string) func(interface{}) error {
 
 func newValidatorInt(expected int) func(interface{}) error {
 	return func(actual interface{}) error {
-		val, ok := actual.(float64)
-		if !ok {
-			return fmt.Errorf(
-				"unexpected field type (expected: int; got: %s)",
-				reflect.TypeOf(actual),
-			)
+		val, err := expectFloat64(actual)
+		if err != nil {
+			return err
 		}
 		if val != float64(expected) {
 			return fmt.Errorf(
-				"mismatching int: (expected: %d, got: %d)",
+				"mismatching int: (expected: %d, got: %f)",
 				expected,
-				actual,
+				val,
 			)
 		}
 		return nil
@@ -84,18 +95,15 @@ func newValidatorInt(expected int) func(interface{}) error {
 
 func newValidatorFloat64(expected float64) func(interface{}) error {
 	return func(actual interface{}) error {
-		val, ok := actual.(float64)
-		if !ok {
-			return fmt.Errorf(
-				"unexpected field type (expected: float64; got: %s)",
-				reflect.TypeOf(actual),
-			)
+		val, err := expectFloat64(actual)
+		if err != nil {
+			return err
 		}
 		if val != expected {
 			return fmt.Errorf(
 				"mismatching float64: (expected: %f, got: %f)",
 				expected,
-				actual,
+				val,
 			)
 		}
 		return nil
@@ -112,20 +120,16 @@ func newValidatorStrings(expected []string) func(interface{}) error {
 			)
 		}
 		for i, val := range val {
-			val, ok := val.(string)
-			if !ok {
-				return fmt.Errorf(
-					"unexpected array-field item type "+
-						"(expected: string; got: %s)",
-					reflect.TypeOf(val),
-				)
+			val, err := expectString(val)
+			if err != nil {
+				return err
 			}
-
-			if expected[i] != val {
+			expected := expected[i]
+			if expected != val {
 				return fmt.Errorf(
 					"mismatching array item: (expected: %s, got: %s)",
 					expected,
-					actual,
+					val,
 				)
 			}
 		}
@@ -143,20 +147,17 @@ func newValidatorInts(expected []int) func(interface{}) error {
 			)
 		}
 		for i, val := range val {
-			val, ok := val.(float64)
-			if !ok {
-				return fmt.Errorf(
-					"unexpected array-field item type "+
-						"(expected: float64; got: %s)",
-					reflect.TypeOf(val),
-				)
+			val, err := expectFloat64(val)
+			if err != nil {
+				return err
 			}
+			expected := expected[i]
 
-			if float64(expected[i]) != val {
+			if float64(expected) != val {
 				return fmt.Errorf(
 					"mismatching array item: (expected: %d, got: %f)",
 					expected,
-					actual,
+					val,
 				)
 			}
 		}
@@ -174,20 +175,17 @@ func newValidatorFloat64s(expected []float64) func(interface{}) error {
 			)
 		}
 		for i, val := range val {
-			val, ok := val.(float64)
-			if !ok {
-				return fmt.Errorf(
-					"unexpected array-field item type "+
-						"(expected: float64; got: %s)",
-					reflect.TypeOf(val),
-				)
+			val, err := expectFloat64(val)
+			if err != nil {
+				return err
 			}
+			expected := expected[i]
 
-			if float64(expected[i]) != val {
+			if float64(expected) != val {
 				return fmt.Errorf(
 					"mismatching array item: (expected: %f, got: %f)",
 					expected,
-					actual,
+					val,
 				)
 			}
 		}
