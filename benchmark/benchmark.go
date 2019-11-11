@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -157,6 +158,20 @@ type Setup struct {
 	InfoWith10         func(io.ReadWriter) (FnInfoWith10, error)
 }
 
+func checkSetupImplementation(setup Setup) error {
+	vl := reflect.ValueOf(setup)
+	tp := reflect.TypeOf(setup)
+	for i := 0; i < vl.NumField(); i++ {
+		if vl.Field(i).IsNil() {
+			return fmt.Errorf(
+				"missing implementation for Setup.%s",
+				tp.Field(i).Name,
+			)
+		}
+	}
+	return nil
+}
+
 // New creates a new benchmark instance also initializing the logger
 func New(
 	out io.ReadWriter,
@@ -165,6 +180,10 @@ func New(
 ) (*Benchmark, error) {
 	if out == nil {
 		out = os.Stdout
+	}
+
+	if err := checkSetupImplementation(setup); err != nil {
+		return nil, fmt.Errorf("invalid logger implementation: %w", err)
 	}
 
 	bench := new(Benchmark)
