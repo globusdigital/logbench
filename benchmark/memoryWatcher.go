@@ -17,19 +17,6 @@ type MemStats struct {
 	MaxHeapSys     uint64
 }
 
-// runtimeMemStatsDiff returns the memory statistics since the given record
-func runtimeMemStatsDiff(start, end runtime.MemStats) runtime.MemStats {
-	diff := end
-	diff.TotalAlloc -= start.TotalAlloc
-	diff.Sys -= start.Sys
-	diff.Mallocs -= start.Mallocs
-	diff.Frees -= start.Frees
-	diff.PauseTotalNs -= start.PauseTotalNs
-	diff.NumGC -= start.NumGC
-	diff.NumForcedGC -= start.NumForcedGC
-	return diff
-}
-
 // StartMemoryWatcher starts a memory watcher goroutine
 // which periodically writes memory statistics to the returned channel
 func StartMemoryWatcher(
