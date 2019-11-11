@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"logbench/benchmark"
 	"os"
 	"runtime"
@@ -15,12 +14,11 @@ import (
 
 func printStatistics(
 	timeTotal time.Duration,
-	operation string,
 	target uint64,
 	concWriters uint,
-	memStatChan chan MemStats,
+	memStatChan chan benchmark.MemStats,
 	loggerOrder []string,
-	stats map[string]benchmark.Statistics,
+	stats map[string]map[string]benchmark.Statistics,
 ) {
 	numPrint := message.NewPrinter(language.English)
 
@@ -43,8 +41,7 @@ func printStatistics(
 		tbMain.SetAlignment(tablewriter.ALIGN_LEFT)
 
 		dr := func(k, v string) { tbMain.Append([]string{k, v}) }
-		dr("operation", operation)
-		dr("target", fmt.Sprintf("%d", target))
+		dr("target", numPrint.Sprintf("%d", target))
 		dr("", "")
 		dr("conc. writers", totalConcWriters)
 		dr("max heap", humanize.Bytes(memStats.MaxHeapAlloc))
@@ -65,6 +62,7 @@ func printStatistics(
 		tbMain := tablewriter.NewWriter(os.Stdout)
 		tbMain.SetHeader([]string{
 			"logger",
+			"operation",
 			"time total",
 			"time avg.",
 			"written",
@@ -72,13 +70,15 @@ func printStatistics(
 		tbMain.SetAlignment(tablewriter.ALIGN_LEFT)
 
 		for _, loggerName := range loggerOrder {
-			stats := stats[loggerName]
-			tbMain.Append([]string{
-				loggerName,
-				stats.TotalTime.String(),
-				(stats.TotalTime / time.Duration(target)).String(),
-				numPrint.Sprintf("%d", stats.TotalLogsWritten),
-			})
+			for operation, stats := range stats[loggerName] {
+				tbMain.Append([]string{
+					loggerName,
+					operation,
+					stats.TotalTime.String(),
+					(stats.TotalTime / time.Duration(target)).String(),
+					numPrint.Sprintf("%d", stats.TotalLogsWritten),
+				})
+			}
 		}
 		tbMain.Render()
 	}
