@@ -13,8 +13,9 @@ import (
 
 func defaultConfig() zap.Config {
 	return zap.Config{
-		Level:    zap.NewAtomicLevelAt(zap.DebugLevel),
-		Encoding: "json",
+		Level:             zap.NewAtomicLevelAt(zap.DebugLevel),
+		Encoding:          "json",
+		DisableStacktrace: true,
 		EncoderConfig: zapcore.EncoderConfig{
 			MessageKey:    "message",
 			LevelKey:      "level",
