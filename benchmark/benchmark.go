@@ -182,7 +182,7 @@ func New(
 		if err != nil {
 			return nil, err
 		}
-		bench.writeLog = func() { fn("information", 42) }
+		bench.writeLog = func() { fn("information %d", 42) }
 
 	case LogOperationInfoWithErrorStack:
 		fn, err := setup.InfoWithErrorStack(out)

@@ -40,17 +40,20 @@ func TestFormat(t *testing.T) {
 
 	fieldValidators := map[string]FV{
 		benchmark.LogOperationInfo: {
-			benchmark.FieldTime:  validateTime,
-			benchmark.FieldLevel: newValidatorLevel(benchmark.LevelInfo),
+			benchmark.FieldTime:    validateTime,
+			benchmark.FieldLevel:   newValidatorLevel(benchmark.LevelInfo),
+			benchmark.FieldMessage: newValidatorText("information"),
 		},
 		benchmark.LogOperationInfoFmt: {
-			benchmark.FieldTime:  validateTime,
-			benchmark.FieldLevel: newValidatorLevel(benchmark.LevelInfo),
+			benchmark.FieldTime:    validateTime,
+			benchmark.FieldLevel:   newValidatorLevel(benchmark.LevelInfo),
+			benchmark.FieldMessage: newValidatorText("information 42"),
 		},
 		benchmark.LogOperationInfoWithErrorStack: {
-			benchmark.FieldTime:  validateTime,
-			benchmark.FieldLevel: newValidatorLevel(benchmark.LevelInfo),
-			benchmark.FieldError: newValidatorText("error with stack trace"),
+			benchmark.FieldTime:    validateTime,
+			benchmark.FieldLevel:   newValidatorLevel(benchmark.LevelInfo),
+			benchmark.FieldMessage: newValidatorText("information"),
+			benchmark.FieldError:   newValidatorText("error with stack trace"),
 		},
 		benchmark.LogOperationError: {
 			benchmark.FieldTime:    validateTime,
