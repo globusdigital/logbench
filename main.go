@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"logbench/benchmark"
+	"logbench/logrus"
 	"logbench/zap"
 	"logbench/zerolog"
 	"os"
@@ -19,6 +20,7 @@ import (
 var setups = map[string]benchmark.Setup{
 	"zap":     zap.Setup(),
 	"zerolog": zerolog.Setup(),
+	"logrus":  logrus.Setup(),
 }
 
 func setupTermSigInterceptor() func() bool {
