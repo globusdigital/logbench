@@ -127,6 +127,11 @@ func main() {
 		1,
 		"number of concurrently writing goroutines",
 	)
+	flagMemoryProfile := flag.String(
+		"memprof",
+		"", // Disabled by default
+		"memory profile output file (disabled when empty)",
+	)
 
 	flag.Parse()
 
@@ -170,13 +175,15 @@ func main() {
 	)
 
 	// Write memory profile
-	runtime.GC()
-	memProfile, err := os.Create("mem.prof")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer memProfile.Close()
-	if err := pprof.WriteHeapProfile(memProfile); err != nil {
-		log.Fatal(err)
+	if *flagMemoryProfile != "" {
+		runtime.GC()
+		memProfile, err := os.Create(*flagMemoryProfile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer memProfile.Close()
+		if err := pprof.WriteHeapProfile(memProfile); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
