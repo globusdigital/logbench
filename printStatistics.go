@@ -3,21 +3,23 @@ package main
 import (
 	"fmt"
 	"logbench/benchmark"
+	"os"
 	"runtime"
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/olekukonko/tablewriter"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
 func printStatistics(
-	logger,
+	timeTotal time.Duration,
 	operation string,
 	target uint64,
 	concWriters uint,
-	stats benchmark.Statistics,
 	memStatChan chan MemStats,
+	stats map[string]benchmark.Statistics,
 ) {
 	numPrint := message.NewPrinter(language.English)
 
@@ -26,9 +28,7 @@ func printStatistics(
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 
-	timeAvg := stats.TotalTime / time.Duration(target)
-	totalLogs := numPrint.Sprintf("%d", stats.TotalLogsWritten)
-	totalWriters := numPrint.Sprintf("%d", concWriters)
+	totalConcWriters := numPrint.Sprintf("%d", concWriters)
 	totalGC := numPrint.Sprintf("%d", m.NumGC)
 	totalMallocs := numPrint.Sprintf("%d", m.Mallocs)
 	maxHeapObj := numPrint.Sprintf("%d", memStats.MaxHeapObjects)
@@ -36,24 +36,48 @@ func printStatistics(
 	heapObjInc := numPrint.Sprintf("%d", memStats.HeapObjectsInc)
 	memStatSamples := numPrint.Sprintf("%d", memStats.StatSamples)
 
-	fmt.Println("")
-	fmt.Printf(" logger:        %s\n", logger)
-	fmt.Printf(" operation:     %s\n", operation)
-	fmt.Printf(" logs total:    %s\n", totalLogs)
-	fmt.Printf(" conc. writers: %s\n", totalWriters)
-	fmt.Println("")
-	fmt.Printf(" time total:    %s\n", stats.TotalTime)
-	fmt.Printf(" time avg:      %s\n", timeAvg)
-	fmt.Println("")
-	fmt.Printf(" max heap:      %s\n", humanize.Bytes(memStats.MaxHeapAlloc))
-	fmt.Printf(" max heap obj:  %s\n", maxHeapObj)
-	fmt.Printf(" mem samples:   %s\n", memStatSamples)
-	fmt.Printf(" heap inc:      %s\n", heapAllocInc)
-	fmt.Printf(" heap obj inc:  %s\n", heapObjInc)
-	fmt.Printf(" heap sys:      %s\n", humanize.Bytes(memStats.MaxHeapSys))
-	fmt.Printf(" total alloc:   %s\n", humanize.Bytes(m.TotalAlloc))
-	fmt.Printf(" mallocs:       %s\n", totalMallocs)
-	fmt.Printf(" num-gc:        %s\n", totalGC)
-	fmt.Printf(" total pause:   %s\n", time.Duration(m.PauseTotalNs))
-	fmt.Println("")
+	// Print main table
+	{
+		tbMain := tablewriter.NewWriter(os.Stdout)
+		tbMain.SetAlignment(tablewriter.ALIGN_LEFT)
+
+		dr := func(k, v string) { tbMain.Append([]string{k, v}) }
+		dr("operation", operation)
+		dr("target", fmt.Sprintf("%d", target))
+		dr("", "")
+		dr("conc. writers", totalConcWriters)
+		dr("max heap", humanize.Bytes(memStats.MaxHeapAlloc))
+		dr("max heap obj", maxHeapObj)
+		dr("mem samples", memStatSamples)
+		dr("heap inc", heapAllocInc)
+		dr("heap obj in", heapObjInc)
+		dr("heap sys", humanize.Bytes(memStats.MaxHeapSys))
+		dr("total alloc", humanize.Bytes(m.TotalAlloc))
+		dr("mallocs", totalMallocs)
+		dr("num-gc", totalGC)
+		dr("total pause", time.Duration(m.PauseTotalNs).String())
+		tbMain.Render()
+	}
+
+	// Print comparisons table
+	{
+		tbMain := tablewriter.NewWriter(os.Stdout)
+		tbMain.SetHeader([]string{
+			"logger",
+			"time total",
+			"time avg.",
+			"written",
+		})
+		tbMain.SetAlignment(tablewriter.ALIGN_LEFT)
+
+		for loggerName, stats := range stats {
+			tbMain.Append([]string{
+				loggerName,
+				stats.TotalTime.String(),
+				(stats.TotalTime / time.Duration(target)).String(),
+				numPrint.Sprintf("%d", stats.TotalLogsWritten),
+			})
+		}
+		tbMain.Render()
+	}
 }

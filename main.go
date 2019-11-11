@@ -86,54 +86,86 @@ func setupTermSigInterceptor() func() bool {
 	return func() bool { return atomic.LoadInt32(&stop) == 1 }
 }
 
-var flagLogger = flag.String("l", "", "logger")
-var flagOperation = flag.String("o", benchmark.LogOperationInfo, "operation")
-var flagTarget = flag.Uint64(
-	"t",
-	1_000_000,
-	"target number of logs to be written",
-)
-var flagMemCheckInterval = flag.Duration(
-	"mi",
-	2*time.Millisecond,
-	"memory inspection interval",
-)
-var flagConcWriters = flag.Uint(
-	"w",
-	1,
-	"number of concurrently writing goroutines",
-)
+type flagLoggers []string
+
+func (l *flagLoggers) String() string { return "loggers" }
+
+func (l *flagLoggers) Set(value string) error {
+	*l = append(*l, value)
+	return nil
+}
+
+func (l *flagLoggers) RemoveDuplicates() {
+	nw := make([]string, 0, len(*l))
+	reg := make(map[string]struct{})
+	for _, loggerName := range *l {
+		if _, ok := reg[loggerName]; !ok {
+			nw = append(nw, loggerName)
+			reg[loggerName] = struct{}{}
+		}
+	}
+	*l = nw
+}
 
 func main() {
+	// Declare and parse flags
+	var flagLoggers flagLoggers
+	flag.Var(&flagLoggers, "l", "loggers")
+	flagOperation := flag.String("o", benchmark.LogOperationInfo, "operation")
+	flagTarget := flag.Uint64(
+		"t",
+		1_000_000,
+		"target number of logs to be written",
+	)
+	flagMemCheckInterval := flag.Duration(
+		"mi",
+		2*time.Millisecond,
+		"memory inspection interval",
+	)
+	flagConcWriters := flag.Uint(
+		"w",
+		1,
+		"number of concurrently writing goroutines",
+	)
+
 	flag.Parse()
 
+	// Prepare
 	stopped := setupTermSigInterceptor()
 	memStatChan := setupMemoryWatcher(*flagMemCheckInterval)
 
-	if *flagLogger == "" {
-		log.Fatal("no logger selected")
+	if len(flagLoggers) < 1 {
+		log.Fatal("no loggers selected")
 	}
 
-	// Initialize benchmark function
-	setupInit, setupExists := setups[*flagLogger]
-	if !setupExists {
-		log.Fatalf("no setup for logger %q", *flagLogger)
-	}
+	flagLoggers.RemoveDuplicates()
 
-	bench, err := benchmark.New(os.Stdout, *flagOperation, setupInit)
-	if err != nil {
-		log.Fatalf("setup %q init: %s", *flagLogger, err)
-	}
+	stats := make(map[string]benchmark.Statistics, len(flagLoggers))
 
-	stats := bench.Run(*flagTarget, *flagConcWriters, stopped)
+	start := time.Now()
+	for _, loggerName := range flagLoggers {
+		// Initialize benchmark function
+		setupInit, setupExists := setups[loggerName]
+		if !setupExists {
+			log.Fatalf("no setup for logger %q", loggerName)
+		}
+
+		bench, err := benchmark.New(os.Stdout, *flagOperation, setupInit)
+		if err != nil {
+			log.Fatalf("setup %q init: %s", loggerName, err)
+		}
+
+		stats[loggerName] = bench.Run(*flagTarget, *flagConcWriters, stopped)
+	}
+	timeTotal := time.Since(start)
 
 	printStatistics(
-		*flagLogger,
+		timeTotal,
 		*flagOperation,
 		*flagTarget,
 		*flagConcWriters,
-		stats,
 		memStatChan,
+		stats,
 	)
 
 	// Write memory profile
