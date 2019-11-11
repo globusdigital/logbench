@@ -58,7 +58,7 @@ const (
 	TimeFormat = "2006-01-02T15:04:05.999999999-07:00"
 )
 
-// Fields3 is a list of 3 fields
+// Fields3 is a list of 3 fields and their according values
 type Fields3 struct {
 	Name1 string
 	Name2 string
@@ -69,7 +69,7 @@ type Fields3 struct {
 	Value3 float64
 }
 
-// Fields10 is a list of 10 fields
+// Fields10 is a list of 10 fields and their according values
 type Fields10 struct {
 	Name1  string
 	Name2  string
@@ -92,6 +92,38 @@ type Fields10 struct {
 	Value8  []string
 	Value9  []int
 	Value10 []float64
+}
+
+// NewFields3 creates a new instance of a set of 3 fields
+func NewFields3() *Fields3 {
+	return &Fields3{
+		Name1: "field1", Value1: "some textual value",
+		Name2: "field_2_int", Value2: 42,
+		Name3: "field_3_float_64", Value3: 42.5,
+	}
+}
+
+// NewFields10 creates a new instance of a set of 10 fields
+func NewFields10() *Fields10 {
+	return &Fields10{
+		Name1: "field1", Value1: "",
+		Name2: "field2", Value2: "some textual value",
+		Name3: "field3", Value3: "and another textual value",
+		Name5: "field5", Value5: "an even longer textual value",
+		Name6: "field_6_int", Value6: 42,
+		Name7: "field_7_float_64", Value7: 42.5,
+		Name8: "field_8_multipleStrings", Value8: []string{
+			"first",
+			"second",
+			"third",
+		},
+		Name9: "field_9_multipleIntegers", Value9: []int{
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+		},
+		Name10: "field_9_multipleIntegers", Value10: []float64{
+			11.5, 24.9, 99.99, 50.5001, 1000.11,
+		},
+	}
 }
 
 // Setup defines the callback functions for all benchmarked cases
@@ -132,32 +164,10 @@ func initSetup(
 	case LogOperationError:
 		return func() { st.Error("error message") }, nil
 	case LogOperationInfoWith3:
-		fields := &Fields3{
-			Name1: "field1", Value1: "some textual value",
-			Name2: "field_2_int", Value2: 42,
-			Name3: "field_3_float_64", Value3: 42.5,
-		}
+		fields := NewFields3()
 		return func() { st.InfoWith3("information", fields) }, nil
 	case LogOperationInfoWith10:
-		fields := &Fields10{
-			Name1: "field1", Value1: "",
-			Name2: "field2", Value2: "some textual value",
-			Name3: "field3", Value3: "and another textual value",
-			Name5: "field5", Value5: "an even longer textual value",
-			Name6: "field_6_int", Value6: 42,
-			Name7: "field_7_float_64", Value7: 42.5,
-			Name8: "field_8_multipleStrings", Value8: []string{
-				"first",
-				"second",
-				"third",
-			},
-			Name9: "field_9_multipleIntegers", Value9: []int{
-				0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-			},
-			Name10: "field_9_multipleIntegers", Value10: []float64{
-				11.5, 24.9, 99.99, 50.5001, 1000.11,
-			},
-		}
+		fields := NewFields10()
 		return func() { st.InfoWith10("information", fields) }, nil
 	}
 	return nil, fmt.Errorf("unsupported operation: %q", operation)
