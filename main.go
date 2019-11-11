@@ -77,6 +77,7 @@ func main() {
 			benchmark.LogOperationInfoWithErrorStack,
 			benchmark.LogOperationInfoWith3,
 			benchmark.LogOperationInfoWith10,
+			benchmark.LogOperationInfoWith10Exist,
 			benchmark.LogOperationError,
 		}
 	}
