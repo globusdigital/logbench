@@ -83,6 +83,21 @@ func TestFormat(t *testing.T) {
 			fields10.Name9:         newValidatorInts(fields10.Value9),
 			fields10.Name10:        newValidatorFloat64s(fields10.Value10),
 		},
+		benchmark.LogOperationInfoWith10Exist: {
+			benchmark.FieldTime:    validateTime,
+			benchmark.FieldLevel:   newValidatorLevel(benchmark.LevelInfo),
+			benchmark.FieldMessage: newValidatorText("information"),
+			fields10.Name1:         newValidatorText(fields10.Value1),
+			fields10.Name2:         newValidatorText(fields10.Value2),
+			fields10.Name3:         newValidatorText(fields10.Value3),
+			fields10.Name4:         newValidatorText(fields10.Value4),
+			fields10.Name5:         newValidatorText(fields10.Value5),
+			fields10.Name6:         newValidatorInt(fields10.Value6),
+			fields10.Name7:         newValidatorFloat64(fields10.Value7),
+			fields10.Name8:         newValidatorStrings(fields10.Value8),
+			fields10.Name9:         newValidatorInts(fields10.Value9),
+			fields10.Name10:        newValidatorFloat64s(fields10.Value10),
+		},
 	}
 
 	for loggerName, initFn := range setups {

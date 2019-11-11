@@ -151,6 +151,32 @@ func newInfoWith10(out io.ReadWriter) (benchmark.FnInfoWith10, error) {
 	}, nil
 }
 
+func newInfoWith10Exist(out io.ReadWriter) (
+	benchmark.FnInfoWith10Exist,
+	error,
+) {
+	l, err := newLogger(out, defaultConfig())
+	if err != nil {
+		return nil, err
+	}
+	fields := benchmark.NewFields10()
+	l = l.With(
+		zap.String(fields.Name1, fields.Value1),
+		zap.String(fields.Name2, fields.Value2),
+		zap.String(fields.Name3, fields.Value3),
+		zap.String(fields.Name4, fields.Value4),
+		zap.String(fields.Name5, fields.Value5),
+		zap.Int(fields.Name6, fields.Value6),
+		zap.Float64(fields.Name7, fields.Value7),
+		zap.Strings(fields.Name8, fields.Value8),
+		zap.Ints(fields.Name9, fields.Value9),
+		zap.Float64s(fields.Name10, fields.Value10),
+	)
+	return func(msg string) {
+		l.Info(msg)
+	}, nil
+}
+
 // Setup defines the zap logger setup
 func Setup() benchmark.Setup {
 	return benchmark.Setup{
@@ -160,5 +186,6 @@ func Setup() benchmark.Setup {
 		Error:              newError,
 		InfoWith3:          newInfoWith3,
 		InfoWith10:         newInfoWith10,
+		InfoWith10Exist:    newInfoWith10Exist,
 	}
 }

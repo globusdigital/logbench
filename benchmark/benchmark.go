@@ -55,6 +55,10 @@ const (
 	// LogOperationError represents the name of an error-log operation
 	LogOperationError = "error"
 
+	// LogOperationInfoWith10Exist represents the name of an info-log operation
+	// involving 10 previously appended fields
+	LogOperationInfoWith10Exist = "info_with_10_exist"
+
 	// TimeFormat defines the time logging format
 	TimeFormat = "2006-01-02T15:04:05.999999999-07:00"
 )
@@ -148,6 +152,10 @@ type FnInfoWith3 func(msg string, fields *Fields3)
 // with 10 data fields attached
 type FnInfoWith10 func(msg string, fields *Fields10)
 
+// FnInfoWith10Exist represents an info logging callback function
+// with 10 previously attached data fields
+type FnInfoWith10Exist func(msg string)
+
 // Setup defines the callback functions for all benchmarked cases
 type Setup struct {
 	Info               func(io.ReadWriter) (FnInfo, error)
@@ -156,6 +164,7 @@ type Setup struct {
 	InfoWithErrorStack func(io.ReadWriter) (FnInfoWithErrorStack, error)
 	InfoWith3          func(io.ReadWriter) (FnInfoWith3, error)
 	InfoWith10         func(io.ReadWriter) (FnInfoWith10, error)
+	InfoWith10Exist    func(io.ReadWriter) (FnInfoWith10Exist, error)
 }
 
 func checkSetupImplementation(setup Setup) error {
@@ -217,6 +226,13 @@ func New(
 			return nil, err
 		}
 		bench.writeLog = func() { fn("error message") }
+
+	case LogOperationInfoWith10Exist:
+		fn, err := setup.InfoWith10Exist(out)
+		if err != nil {
+			return nil, err
+		}
+		bench.writeLog = func() { fn("information") }
 
 	case LogOperationInfoWith3:
 		fn, err := setup.InfoWith3(out)
