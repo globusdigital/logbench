@@ -1,17 +1,19 @@
-package main
+package zerolog
 
 import (
-	"os"
+	"io"
+	"logbench/benchmark"
 
 	"github.com/rs/zerolog"
 )
 
-func initZerolog() (FuncSet, error) {
+// Setup initializes the zerolog based logger
+func Setup(out io.ReadWriter) (benchmark.Setup, error) {
 	// Initialize logger
-	l := zerolog.New(os.Stdout).With().Timestamp().Logger()
+	l := zerolog.New(out).With().Timestamp().Logger()
 
 	// Choose log function
-	return FuncSet{
+	return benchmark.Setup{
 		Info: func(msg string) {
 			l.Info().Msg(msg)
 		},
@@ -25,7 +27,7 @@ func initZerolog() (FuncSet, error) {
 		Error: func(msg string) {
 			l.Error().Msg(msg)
 		},
-		InfoWith3: func(msg string, fields *Fields3) {
+		InfoWith3: func(msg string, fields *benchmark.Fields3) {
 			l := l.With().
 				Str(fields.Name1, fields.Value1).
 				Int(fields.Name2, fields.Value2).
@@ -33,7 +35,7 @@ func initZerolog() (FuncSet, error) {
 				Logger()
 			l.Info().Msg(msg)
 		},
-		InfoWith10: func(msg string, fields *Fields10) {
+		InfoWith10: func(msg string, fields *benchmark.Fields10) {
 			l := l.With().
 				Str(fields.Name1, fields.Value1).
 				Str(fields.Name2, fields.Value2).

@@ -1,20 +1,35 @@
-package main
+package zap
 
 import (
 	"fmt"
+	"io"
+	"logbench/benchmark"
+	"os"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-func initZap() (FuncSet, error) {
+// Setup initializes the zap based logger
+func Setup(out io.ReadWriter) (benchmark.Setup, error) {
+	if err := zapSink.SetOut(out); err != nil {
+		return benchmark.Setup{}, fmt.Errorf("setting sink output: %w", err)
+	}
+
+	var outputs []string
+	if out == os.Stdout {
+		outputs = []string{"stdout"}
+	} else {
+		outputs = []string{"memory://"}
+	}
+
 	conf := zap.Config{
 		Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
-		OutputPaths: []string{"stdout"},
+		OutputPaths: outputs,
 		Encoding:    "json",
 		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey:    "msg",
+			MessageKey:    "message",
 			LevelKey:      "level",
 			TimeKey:       "time",
 			NameKey:       "name",
@@ -45,7 +60,7 @@ func initZap() (FuncSet, error) {
 				tm time.Time,
 				enc zapcore.PrimitiveArrayEncoder,
 			) {
-				enc.AppendString(tm.Format(TimeFormat))
+				enc.AppendString(tm.Format(benchmark.TimeFormat))
 			},
 			EncodeCaller: zapcore.ShortCallerEncoder,
 		},
@@ -53,11 +68,11 @@ func initZap() (FuncSet, error) {
 
 	l, err := conf.Build()
 	if err != nil {
-		return FuncSet{}, fmt.Errorf("building zap config: %w", err)
+		return benchmark.Setup{}, fmt.Errorf("building zap config: %w", err)
 	}
 
 	// Choose log function
-	return FuncSet{
+	return benchmark.Setup{
 		Info: func(msg string) {
 			l.Info(msg)
 		},
@@ -70,14 +85,14 @@ func initZap() (FuncSet, error) {
 		Error: func(msg string) {
 			l.Error(msg)
 		},
-		InfoWith3: func(msg string, fields *Fields3) {
+		InfoWith3: func(msg string, fields *benchmark.Fields3) {
 			l.Info(msg,
 				zap.String(fields.Name1, fields.Value1),
 				zap.Int(fields.Name2, fields.Value2),
 				zap.Float64(fields.Name3, fields.Value3),
 			)
 		},
-		InfoWith10: func(msg string, fields *Fields10) {
+		InfoWith10: func(msg string, fields *benchmark.Fields10) {
 			l.Info(msg,
 				zap.String(fields.Name1, fields.Value1),
 				zap.String(fields.Name2, fields.Value2),
