@@ -18,6 +18,7 @@ func printStatistics(
 	concWriters uint,
 	memStatChan chan benchmark.MemStats,
 	loggerOrder []string,
+	operationsOrder []string,
 	stats map[string]map[string]benchmark.Statistics,
 ) {
 	numPrint := message.NewPrinter(language.English)
@@ -70,7 +71,8 @@ func printStatistics(
 		tbMain.SetAlignment(tablewriter.ALIGN_LEFT)
 
 		for _, loggerName := range loggerOrder {
-			for operation, stats := range stats[loggerName] {
+			for _, operation := range operationsOrder {
+				stats := stats[loggerName][operation]
 				tbMain.Append([]string{
 					loggerName,
 					operation,

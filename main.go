@@ -125,6 +125,7 @@ func main() {
 		*flagConcWriters,
 		memStatChan,
 		flagLoggers.vals,
+		flagOperations.vals,
 		stats,
 	)
 
