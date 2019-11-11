@@ -193,7 +193,7 @@ func New(
 		bench.writeLog = func() { fn("information", errVal) }
 
 	case LogOperationError:
-		fn, err := setup.Info(out)
+		fn, err := setup.Error(out)
 		if err != nil {
 			return nil, err
 		}
