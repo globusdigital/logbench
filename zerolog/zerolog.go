@@ -62,7 +62,7 @@ func newInfoWith10(out io.ReadWriter) (benchmark.FnInfoWith10, error) {
 			Str(fields.Name1, fields.Value1).
 			Str(fields.Name2, fields.Value2).
 			Str(fields.Name3, fields.Value3).
-			Str(fields.Name4, fields.Value4).
+			Bool(fields.Name4, fields.Value4).
 			Str(fields.Name5, fields.Value5).
 			Int(fields.Name6, fields.Value6).
 			Float64(fields.Name7, fields.Value7).
@@ -84,7 +84,7 @@ func newInfoWith10Exist(out io.ReadWriter) (
 		Str(fields.Name1, fields.Value1).
 		Str(fields.Name2, fields.Value2).
 		Str(fields.Name3, fields.Value3).
-		Str(fields.Name4, fields.Value4).
+		Bool(fields.Name4, fields.Value4).
 		Str(fields.Name5, fields.Value5).
 		Int(fields.Name6, fields.Value6).
 		Float64(fields.Name7, fields.Value7).
