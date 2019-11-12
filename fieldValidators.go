@@ -21,6 +21,17 @@ func expectString(actual interface{}) (string, error) {
 	return val, nil
 }
 
+func expectBool(actual interface{}) (bool, error) {
+	val, ok := actual.(bool)
+	if !ok {
+		return false, fmt.Errorf(
+			"unexpected field type (expected: bool; got: %s)",
+			reflect.TypeOf(actual),
+		)
+	}
+	return val, nil
+}
+
 func expectFloat64(actual interface{}) (float64, error) {
 	val, ok := actual.(float64)
 	if !ok {
@@ -71,6 +82,19 @@ func newValidatorText(expected string) func(interface{}) error {
 				expected,
 				val,
 			)
+		}
+		return nil
+	}
+}
+
+func newValidatorBool(expected bool) func(interface{}) error {
+	return func(actual interface{}) error {
+		val, err := expectBool(actual)
+		if err != nil {
+			return err
+		}
+		if val != expected {
+			return fmt.Errorf("mismatching bool: (expected: %t)", expected)
 		}
 		return nil
 	}

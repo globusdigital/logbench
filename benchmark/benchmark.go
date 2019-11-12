@@ -90,7 +90,7 @@ type Fields10 struct {
 	Value1  string
 	Value2  string
 	Value3  string
-	Value4  string
+	Value4  bool
 	Value5  string
 	Value6  int
 	Value7  float64
@@ -114,6 +114,7 @@ func NewFields10() *Fields10 {
 		Name1: "field1", Value1: "",
 		Name2: "field2", Value2: "some textual value",
 		Name3: "field3", Value3: "and another textual value",
+		Name4: "field4", Value4: true,
 		Name5: "field5", Value5: "an even longer textual value",
 		Name6: "field_6_int", Value6: 42,
 		Name7: "field_7_float_64", Value7: 42.5,
