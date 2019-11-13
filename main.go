@@ -8,6 +8,7 @@ import (
 	"logbench/logrus"
 	"logbench/zap"
 	"logbench/zerolog"
+	"logbench/zerowrap"
 	"os"
 	"os/signal"
 	"runtime"
@@ -18,9 +19,10 @@ import (
 )
 
 var setups = map[string]benchmark.Setup{
-	"zap":     zap.Setup(),
-	"zerolog": zerolog.Setup(),
-	"logrus":  logrus.Setup(),
+	"zap":      zap.Setup(),
+	"zerolog":  zerolog.Setup(),
+	"logrus":   logrus.Setup(),
+	"zerowrap": zerowrap.Setup(),
 }
 
 func setupTermSigInterceptor() func() bool {
