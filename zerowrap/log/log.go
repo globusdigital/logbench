@@ -384,7 +384,6 @@ func stringifyStackTrace(trace errors.StackTrace) []byte {
 		fn := runtime.FuncForPC(pc)
 		file, line := fn.FileLine(pc)
 		fnName := fn.Name()
-		buf.Grow(len(file) + 12 + len(fnName))
 		buf.WriteString(file)
 		buf.WriteRune(':')
 		buf.WriteString(strconv.Itoa(line))
