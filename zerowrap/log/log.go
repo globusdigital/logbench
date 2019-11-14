@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"logbench/zerowrap/log/bufpool"
 )
 
 // Log is a logger instance
@@ -377,8 +378,8 @@ func findErrCause(err error) (stackTrace errors.StackTrace, causeErr error) {
 
 // stringifyStackTrace stringifies the given error stack trace
 func stringifyStackTrace(trace errors.StackTrace) []byte {
-	buf := bufferPool.Get()
-	defer bufferPool.Put(buf)
+	buf := bufpool.BufferPool.Get()
+	defer bufpool.BufferPool.Put(buf)
 	for ix, frame := range trace {
 		pc := uintptr(frame) - 1
 		fn := runtime.FuncForPC(pc)
