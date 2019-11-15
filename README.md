@@ -26,6 +26,10 @@ Performance is measured by the following main criteria:
 - `total pause` - Total duration of GC pauses.
 - Average and total time of execution (by operation).
 
+<br>
+
+![Benchmark Results](https://github.com/globusdigital/logbench/blob/master/results_graphs.png?raw=true)
+_i7-8569U @ 2.80GHz_
 
 ## Getting started
 
