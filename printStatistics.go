@@ -43,8 +43,9 @@ func printStatistics(
 
 		dr := func(k, v string) { tbMain.Append([]string{k, v}) }
 		dr("target", numPrint.Sprintf("%d", target))
-		dr("", "")
 		dr("conc. writers", totalConcWriters)
+		dr("", "")
+		dr("time total", timeTotal.String())
 		dr("max heap", humanize.Bytes(memStats.MaxHeapAlloc))
 		dr("max heap obj", maxHeapObj)
 		dr("mem samples", memStatSamples)
