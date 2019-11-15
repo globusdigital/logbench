@@ -2,8 +2,8 @@ package zerolog
 
 import (
 	"io"
-	"logbench/benchmark"
 
+	"github.com/globusdigital/logbench/benchmark"
 	"github.com/rs/zerolog"
 )
 

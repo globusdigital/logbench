@@ -1,12 +1,12 @@
 package main
 
 import (
-	"logbench/benchmark"
 	"os"
 	"runtime"
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/globusdigital/logbench/benchmark"
 	"github.com/olekukonko/tablewriter"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"

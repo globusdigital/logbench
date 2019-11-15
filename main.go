@@ -4,10 +4,6 @@ import (
 	"context"
 	"flag"
 	"log"
-	"logbench/benchmark"
-	"logbench/logrus"
-	"logbench/zap"
-	"logbench/zerolog"
 	"os"
 	"os/signal"
 	"runtime"
@@ -15,6 +11,11 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+
+	"github.com/globusdigital/logbench/benchmark"
+	"github.com/globusdigital/logbench/logrus"
+	"github.com/globusdigital/logbench/zap"
+	"github.com/globusdigital/logbench/zerolog"
 )
 
 var setups = map[string]benchmark.Setup{

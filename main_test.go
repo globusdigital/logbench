@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"logbench/benchmark"
 	"sync"
 	"testing"
 
+	"github.com/globusdigital/logbench/benchmark"
 	"github.com/stretchr/testify/require"
 )
 

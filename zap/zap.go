@@ -3,10 +3,10 @@ package zap
 import (
 	"fmt"
 	"io"
-	"logbench/benchmark"
 	"os"
 	"time"
 
+	"github.com/globusdigital/logbench/benchmark"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

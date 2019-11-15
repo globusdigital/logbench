@@ -2,10 +2,10 @@ package benchmark_test
 
 import (
 	"fmt"
-	"logbench/benchmark"
 	"reflect"
 	"testing"
 
+	"github.com/globusdigital/logbench/benchmark"
 	"github.com/stretchr/testify/require"
 )
 

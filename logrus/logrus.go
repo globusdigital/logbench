@@ -2,8 +2,8 @@ package logrus
 
 import (
 	"io"
-	"logbench/benchmark"
 
+	"github.com/globusdigital/logbench/benchmark"
 	"github.com/sirupsen/logrus"
 )
 

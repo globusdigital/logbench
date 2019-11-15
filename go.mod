@@ -1,4 +1,4 @@
-module logbench
+module github.com/globusdigital/logbench
 
 go 1.13
 
