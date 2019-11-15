@@ -1,11 +1,17 @@
 <a href="https://goreportcard.com/report/github.com/globusdigital/logbench">
   <img src="https://goreportcard.com/badge/github.com/globusdigital/logbench" alt="GoReportCard">
 </a>
+<a href="https://travis-ci.org/globusdigital/logbench">
+    <img src="https://travis-ci.org/globusdigital/logbench.svg?branch=master" alt="Travis CI: build status">
+</a>
+<a href='https://coveralls.io/github/globusdigital/logbench'>
+    <img src='https://coveralls.io/repos/github/globusdigital/logbench/badge.svg' alt='Coverage Status' />
+</a>
 
 <h2>
   <span>Go - Structured Logging Benchmark</span>
   <br>
-  <sub>by <a href="globus.ch">Magazine zum Globus AG</a></sub>
+  <sub>by <a href="globus.ch">Magazine zum Globus</a></sub>
 </h2>
 
 A structured JSON logging performance benchmark providing realistic performance metrics for the latest versions of:
