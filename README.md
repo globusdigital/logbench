@@ -11,7 +11,7 @@
 <h2>
   <span>Go - Structured Logging Benchmark</span>
   <br>
-  <sub>by <a href="globus.ch">Magazine zum Globus</a></sub>
+  <sub>by <a href="https://globus.ch">Magazine zum Globus</a></sub>
 </h2>
 
 A structured JSON logging performance benchmark providing realistic performance metrics for the latest versions of:
