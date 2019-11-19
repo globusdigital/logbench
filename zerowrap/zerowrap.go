@@ -4,19 +4,20 @@ package zerowrap
 import (
 	"fmt"
 	"io"
-	"logbench/benchmark"
-	"logbench/zerowrap/log"
+
+	"github.com/globusdigital/logbench/benchmark"
+	"github.com/globusdigital/logbench/zerowrap/log"
 )
 
 func newInfo(out io.ReadWriter) (benchmark.FnInfo, error) {
-	l := log.NewLogger(out)
+	l := log.NewLog(out)
 	return func(msg string) {
 		l.Info(msg)
 	}, nil
 }
 
 func newInfoFmt(out io.ReadWriter) (benchmark.FnInfoFmt, error) {
-	l := log.NewLogger(out)
+	l := log.NewLog(out)
 	return func(msg string, data int) {
 		l.Info(fmt.Sprintf(msg, data))
 	}, nil
@@ -25,21 +26,21 @@ func newInfoFmt(out io.ReadWriter) (benchmark.FnInfoFmt, error) {
 func newInfoWithErrorStack(out io.ReadWriter) (
 	benchmark.FnInfoWithErrorStack, error,
 ) {
-	l := log.NewLogger(out)
+	l := log.NewLog(out)
 	return func(msg string, err error) {
 		l.WithErr(err).Info(msg)
 	}, nil
 }
 
 func newError(out io.ReadWriter) (benchmark.FnError, error) {
-	l := log.NewLogger(out)
+	l := log.NewLog(out)
 	return func(msg string) {
 		l.Error(msg)
 	}, nil
 }
 
 func newInfoWith3(out io.ReadWriter) (benchmark.FnInfoWith3, error) {
-	l := log.NewLogger(out)
+	l := log.NewLog(out)
 	return func(msg string, fields *benchmark.Fields3) {
 		l.
 			Str(fields.Name1, fields.Value1).
@@ -50,7 +51,7 @@ func newInfoWith3(out io.ReadWriter) (benchmark.FnInfoWith3, error) {
 }
 
 func newInfoWith10(out io.ReadWriter) (benchmark.FnInfoWith10, error) {
-	l := log.NewLogger(out)
+	l := log.NewLog(out)
 	return func(msg string, fields *benchmark.Fields10) {
 		l.
 			Str(fields.Name1, fields.Value1).
@@ -72,7 +73,7 @@ func newInfoWith10Exist(out io.ReadWriter) (
 	error,
 ) {
 	fields := benchmark.NewFields10()
-	l := log.NewLogger(out).
+	l := log.NewLog(out).
 		Str(fields.Name1, fields.Value1).
 		Str(fields.Name2, fields.Value2).
 		Str(fields.Name3, fields.Value3).
