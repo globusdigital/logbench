@@ -5,6 +5,7 @@ import (
 	"io"
 	"runtime"
 	"strconv"
+	"time"
 
 	"github.com/globusdigital/logbench/zerowrap/log/bufpool"
 	"github.com/pkg/errors"
@@ -229,6 +230,16 @@ func (l Log) Float32s(fieldName string, value []float32) Log {
 // Float64s appends a field to the logger context
 func (l Log) Float64s(fieldName string, value []float64) Log {
 	return logFromCtx(l.ctx().Floats64(fieldName, value))
+}
+
+// Dur appends a field to the logger context
+func (l Log) Dur(fieldName string, value time.Duration) Log {
+	return logFromCtx(l.ctx().Dur(fieldName, value))
+}
+
+// Durs appends a field to the logger context
+func (l Log) Durs(fieldName string, value []time.Duration) Log {
+	return logFromCtx(l.ctx().Durs(fieldName, value))
 }
 
 // findErrCause iteratively tries to find the root cause error
