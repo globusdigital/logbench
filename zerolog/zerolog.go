@@ -2,10 +2,15 @@ package zerolog
 
 import (
 	"io"
+	"time"
 
 	"github.com/globusdigital/logbench/benchmark"
 	"github.com/rs/zerolog"
 )
+
+func init() {
+	zerolog.TimeFieldFormat = time.RFC3339Nano
+}
 
 func newLogger(out io.ReadWriter) zerolog.Logger {
 	// Initialize logger
