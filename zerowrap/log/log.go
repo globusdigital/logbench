@@ -111,6 +111,21 @@ func (l Log) Int(fieldName string, value int) Log {
 	return logFromCtx(l.ctx().Int(fieldName, value))
 }
 
+// Int8 appends a field to the logger context
+func (l Log) Int8(fieldName string, value int8) Log {
+	return logFromCtx(l.ctx().Int8(fieldName, value))
+}
+
+// Uint16 appends a field to the logger context
+func (l Log) Uint16(fieldName string, value uint16) Log {
+	return logFromCtx(l.ctx().Uint16(fieldName, value))
+}
+
+// Int16 appends a field to the logger context
+func (l Log) Int16(fieldName string, value int16) Log {
+	return logFromCtx(l.ctx().Int16(fieldName, value))
+}
+
 // Uint32 appends a field to the logger context
 func (l Log) Uint32(fieldName string, value uint32) Log {
 	return logFromCtx(l.ctx().Uint32(fieldName, value))
