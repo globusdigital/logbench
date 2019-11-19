@@ -25,6 +25,20 @@ func (l Log) logger() zerolog.Logger {
 	return l.zl
 }
 
+func (l Log) ctx() zerolog.Context {
+	if l.isCx {
+		return l.cx
+	}
+	return l.zl.With()
+}
+
+func logFromCtx(ctx zerolog.Context) Log {
+	return Log{
+		isCx: true,
+		cx:   ctx,
+	}
+}
+
 // Info logs an info-level message
 func (l Log) Info(msg string) {
 	lg := l.logger()
@@ -55,27 +69,13 @@ func (l Log) Fatal(msg string) {
 	lg.Fatal().Msg(msg)
 }
 
-func (l Log) getCtx() zerolog.Context {
-	if l.isCx {
-		return l.cx
-	}
-	return l.zl.With()
-}
-
-func logFromCtx(ctx zerolog.Context) Log {
-	return Log{
-		isCx: true,
-		cx:   ctx,
-	}
-}
-
 // WithErr appends the "error" and "error.stack" fields to the logger context
 func (l Log) WithErr(err error) Log {
 	if err == nil {
 		return l
 	}
 
-	ctx := l.getCtx()
+	ctx := l.ctx()
 
 	stackTrace, _ := findErrCause(err)
 	if len(stackTrace) > 0 {
@@ -93,122 +93,122 @@ func (l Log) WithErr(err error) Log {
 
 // Str appends a field to the logger context
 func (l Log) Str(fieldName string, value string) Log {
-	return logFromCtx(l.getCtx().Str(fieldName, value))
+	return logFromCtx(l.ctx().Str(fieldName, value))
 }
 
 // Bool appends a field to the logger context
 func (l Log) Bool(fieldName string, value bool) Log {
-	return logFromCtx(l.getCtx().Bool(fieldName, value))
+	return logFromCtx(l.ctx().Bool(fieldName, value))
 }
 
 // Uint appends a field to the logger context
 func (l Log) Uint(fieldName string, value uint) Log {
-	return logFromCtx(l.getCtx().Uint(fieldName, value))
+	return logFromCtx(l.ctx().Uint(fieldName, value))
 }
 
 // Int appends a field to the logger context
 func (l Log) Int(fieldName string, value int) Log {
-	return logFromCtx(l.getCtx().Int(fieldName, value))
+	return logFromCtx(l.ctx().Int(fieldName, value))
 }
 
 // Uint32 appends a field to the logger context
 func (l Log) Uint32(fieldName string, value uint32) Log {
-	return logFromCtx(l.getCtx().Uint32(fieldName, value))
+	return logFromCtx(l.ctx().Uint32(fieldName, value))
 }
 
 // Int32 appends a field to the logger context
 func (l Log) Int32(fieldName string, value int32) Log {
-	return logFromCtx(l.getCtx().Int32(fieldName, value))
+	return logFromCtx(l.ctx().Int32(fieldName, value))
 }
 
 // Uint64 appends a field to the logger context
 func (l Log) Uint64(fieldName string, value uint64) Log {
-	return logFromCtx(l.getCtx().Uint64(fieldName, value))
+	return logFromCtx(l.ctx().Uint64(fieldName, value))
 }
 
 // Int64 appends a field to the logger context
 func (l Log) Int64(fieldName string, value int64) Log {
-	return logFromCtx(l.getCtx().Int64(fieldName, value))
+	return logFromCtx(l.ctx().Int64(fieldName, value))
 }
 
 // Float32 appends a field to the logger context
 func (l Log) Float32(fieldName string, value float32) Log {
-	return logFromCtx(l.getCtx().Float32(fieldName, value))
+	return logFromCtx(l.ctx().Float32(fieldName, value))
 }
 
 // Float64 appends a field to the logger context
 func (l Log) Float64(fieldName string, value float64) Log {
-	return logFromCtx(l.getCtx().Float64(fieldName, value))
+	return logFromCtx(l.ctx().Float64(fieldName, value))
 }
 
 // Bytes appends a field to the logger context
 func (l Log) Bytes(fieldName string, value []byte) Log {
-	return logFromCtx(l.getCtx().Bytes(fieldName, value))
+	return logFromCtx(l.ctx().Bytes(fieldName, value))
 }
 
 // Strs appends a field to the logger context
 func (l Log) Strs(fieldName string, value []string) Log {
-	return logFromCtx(l.getCtx().Strs(fieldName, value))
+	return logFromCtx(l.ctx().Strs(fieldName, value))
 }
 
 // Bools appends a field to the logger context
 func (l Log) Bools(fieldName string, value []bool) Log {
-	return logFromCtx(l.getCtx().Bools(fieldName, value))
+	return logFromCtx(l.ctx().Bools(fieldName, value))
 }
 
 // Uints appends a field to the logger context
 func (l Log) Uints(fieldName string, value []uint) Log {
-	return logFromCtx(l.getCtx().Uints(fieldName, value))
+	return logFromCtx(l.ctx().Uints(fieldName, value))
 }
 
 // Ints appends a field to the logger context
 func (l Log) Ints(fieldName string, value []int) Log {
-	return logFromCtx(l.getCtx().Ints(fieldName, value))
+	return logFromCtx(l.ctx().Ints(fieldName, value))
 }
 
 // Int8s appends a field to the logger context
 func (l Log) Int8s(fieldName string, value []int8) Log {
-	return logFromCtx(l.getCtx().Ints8(fieldName, value))
+	return logFromCtx(l.ctx().Ints8(fieldName, value))
 }
 
 // Uint16s appends a field to the logger context
 func (l Log) Uint16s(fieldName string, value []uint16) Log {
-	return logFromCtx(l.getCtx().Uints16(fieldName, value))
+	return logFromCtx(l.ctx().Uints16(fieldName, value))
 }
 
 // Int16s appends a field to the logger context
 func (l Log) Int16s(fieldName string, value []int16) Log {
-	return logFromCtx(l.getCtx().Ints16(fieldName, value))
+	return logFromCtx(l.ctx().Ints16(fieldName, value))
 }
 
 // Uint32s appends a field to the logger context
 func (l Log) Uint32s(fieldName string, value []uint32) Log {
-	return logFromCtx(l.getCtx().Uints32(fieldName, value))
+	return logFromCtx(l.ctx().Uints32(fieldName, value))
 }
 
 // Int32s appends a field to the logger context
 func (l Log) Int32s(fieldName string, value []int32) Log {
-	return logFromCtx(l.getCtx().Ints32(fieldName, value))
+	return logFromCtx(l.ctx().Ints32(fieldName, value))
 }
 
 // Uint64s appends a field to the logger context
 func (l Log) Uint64s(fieldName string, value []uint64) Log {
-	return logFromCtx(l.getCtx().Uints64(fieldName, value))
+	return logFromCtx(l.ctx().Uints64(fieldName, value))
 }
 
 // Int64s appends a field to the logger context
 func (l Log) Int64s(fieldName string, value []int64) Log {
-	return logFromCtx(l.getCtx().Ints64(fieldName, value))
+	return logFromCtx(l.ctx().Ints64(fieldName, value))
 }
 
 // Float32s appends a field to the logger context
 func (l Log) Float32s(fieldName string, value []float32) Log {
-	return logFromCtx(l.getCtx().Floats32(fieldName, value))
+	return logFromCtx(l.ctx().Floats32(fieldName, value))
 }
 
 // Float64s appends a field to the logger context
 func (l Log) Float64s(fieldName string, value []float64) Log {
-	return logFromCtx(l.getCtx().Floats64(fieldName, value))
+	return logFromCtx(l.ctx().Floats64(fieldName, value))
 }
 
 // findErrCause iteratively tries to find the root cause error
