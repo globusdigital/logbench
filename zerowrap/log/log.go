@@ -43,11 +43,17 @@ func (l Log) ctx() zerolog.Context {
 	return l.zl.With()
 }
 
-func logFromCtx(ctx zerolog.Context) Log {
-	return Log{
-		isCx: true,
-		cx:   ctx,
+func (l Log) logFromCtxWithNewField(ctx zerolog.Context) Log {
+	l.isCx = true
+	l.cx = ctx
+	l.cxSz++
+	if l.cxSz > MaxLogContextSize {
+		panic(fmt.Errorf(
+			"max log context size (%d) exceeded",
+			MaxLogContextSize,
+		))
 	}
+	return l
 }
 
 // Info logs an info-level message
@@ -80,8 +86,8 @@ func (l Log) Fatal(msg string) {
 	lg.Fatal().Msg(msg)
 }
 
-// WithErr appends the "error" and "error.stack" fields to the logger context
-func (l Log) WithErr(err error) Log {
+// Err appends the "error" and "error.stack" fields to the logger context
+func (l Log) Err(err error) Log {
 	if err == nil {
 		return l
 	}
@@ -99,197 +105,157 @@ func (l Log) WithErr(err error) Log {
 		ctx = ctx.Err(err)
 	}
 
-	return logFromCtx(ctx)
-}
-
-func (l Log) checkContextSize() {
-	if l.cxSz > MaxLogContextSize {
-		panic(fmt.Errorf(
-			"max log context size exceeded: (fields: %d / max: %d)",
-			l.cxSz,
-			MaxLogContextSize,
-		))
-	}
+	return l.logFromCtxWithNewField(ctx)
 }
 
 // Str appends a field to the logger context
 func (l Log) Str(fieldName string, value string) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Str(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Str(fieldName, value))
 }
 
 // Bool appends a field to the logger context
 func (l Log) Bool(fieldName string, value bool) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Bool(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Bool(fieldName, value))
 }
 
 // Uint appends a field to the logger context
 func (l Log) Uint(fieldName string, value uint) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uint(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uint(fieldName, value))
 }
 
 // Int appends a field to the logger context
 func (l Log) Int(fieldName string, value int) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Int(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Int(fieldName, value))
 }
 
 // Uint8 appends a field to the logger context
 func (l Log) Uint8(fieldName string, value uint8) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uint8(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uint8(fieldName, value))
 }
 
 // Int8 appends a field to the logger context
 func (l Log) Int8(fieldName string, value int8) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Int8(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Int8(fieldName, value))
 }
 
 // Uint16 appends a field to the logger context
 func (l Log) Uint16(fieldName string, value uint16) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uint16(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uint16(fieldName, value))
 }
 
 // Int16 appends a field to the logger context
 func (l Log) Int16(fieldName string, value int16) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Int16(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Int16(fieldName, value))
 }
 
 // Uint32 appends a field to the logger context
 func (l Log) Uint32(fieldName string, value uint32) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uint32(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uint32(fieldName, value))
 }
 
 // Int32 appends a field to the logger context
 func (l Log) Int32(fieldName string, value int32) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Int32(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Int32(fieldName, value))
 }
 
 // Uint64 appends a field to the logger context
 func (l Log) Uint64(fieldName string, value uint64) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uint64(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uint64(fieldName, value))
 }
 
 // Int64 appends a field to the logger context
 func (l Log) Int64(fieldName string, value int64) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Int64(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Int64(fieldName, value))
 }
 
 // Float32 appends a field to the logger context
 func (l Log) Float32(fieldName string, value float32) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Float32(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Float32(fieldName, value))
 }
 
 // Float64 appends a field to the logger context
 func (l Log) Float64(fieldName string, value float64) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Float64(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Float64(fieldName, value))
 }
 
 // Bytes appends a field to the logger context
 func (l Log) Bytes(fieldName string, value []byte) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Bytes(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Bytes(fieldName, value))
 }
 
 // Strs appends a field to the logger context
 func (l Log) Strs(fieldName string, value []string) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Strs(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Strs(fieldName, value))
 }
 
 // Bools appends a field to the logger context
 func (l Log) Bools(fieldName string, value []bool) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Bools(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Bools(fieldName, value))
 }
 
 // Uints appends a field to the logger context
 func (l Log) Uints(fieldName string, value []uint) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uints(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uints(fieldName, value))
 }
 
 // Ints appends a field to the logger context
 func (l Log) Ints(fieldName string, value []int) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Ints(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Ints(fieldName, value))
 }
 
 // Int8s appends a field to the logger context
 func (l Log) Int8s(fieldName string, value []int8) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Ints8(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Ints8(fieldName, value))
 }
 
 // Uint16s appends a field to the logger context
 func (l Log) Uint16s(fieldName string, value []uint16) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uints16(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uints16(fieldName, value))
 }
 
 // Int16s appends a field to the logger context
 func (l Log) Int16s(fieldName string, value []int16) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Ints16(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Ints16(fieldName, value))
 }
 
 // Uint32s appends a field to the logger context
 func (l Log) Uint32s(fieldName string, value []uint32) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uints32(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uints32(fieldName, value))
 }
 
 // Int32s appends a field to the logger context
 func (l Log) Int32s(fieldName string, value []int32) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Ints32(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Ints32(fieldName, value))
 }
 
 // Uint64s appends a field to the logger context
 func (l Log) Uint64s(fieldName string, value []uint64) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Uints64(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Uints64(fieldName, value))
 }
 
 // Int64s appends a field to the logger context
 func (l Log) Int64s(fieldName string, value []int64) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Ints64(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Ints64(fieldName, value))
 }
 
 // Float32s appends a field to the logger context
 func (l Log) Float32s(fieldName string, value []float32) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Floats32(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Floats32(fieldName, value))
 }
 
 // Float64s appends a field to the logger context
 func (l Log) Float64s(fieldName string, value []float64) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Floats64(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Floats64(fieldName, value))
 }
 
 // Dur appends a field to the logger context
 func (l Log) Dur(fieldName string, value time.Duration) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Dur(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Dur(fieldName, value))
 }
 
 // Durs appends a field to the logger context
 func (l Log) Durs(fieldName string, value []time.Duration) Log {
-	l.checkContextSize()
-	return logFromCtx(l.ctx().Durs(fieldName, value))
+	return l.logFromCtxWithNewField(l.ctx().Durs(fieldName, value))
 }
 
 // findErrCause iteratively tries to find the root cause error

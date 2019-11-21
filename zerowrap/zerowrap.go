@@ -28,7 +28,7 @@ func newInfoWithErrorStack(out io.ReadWriter) (
 ) {
 	l := log.NewLog(out)
 	return func(msg string, err error) {
-		l.WithErr(err).Info(msg)
+		l.Err(err).Info(msg)
 	}, nil
 }
 
