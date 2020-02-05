@@ -127,7 +127,7 @@ func NewFields10() *Fields10 {
 		Name9: "field_9_multipleIntegers", Value9: []int{
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
 		},
-		Name10: "field_9_multipleIntegers", Value10: []float64{
+		Name10: "field_10_multipleFloat64s", Value10: []float64{
 			11.5, 24.9, 99.99, 50.5001, 1000.11,
 		},
 	}
