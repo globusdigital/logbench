@@ -14,6 +14,7 @@ import (
 
 	"github.com/globusdigital/logbench/benchmark"
 	"github.com/globusdigital/logbench/logrus"
+	"github.com/globusdigital/logbench/phuslog"
 	"github.com/globusdigital/logbench/zap"
 	"github.com/globusdigital/logbench/zerolog"
 )
@@ -22,6 +23,7 @@ var setups = map[string]benchmark.Setup{
 	"zap":     zap.Setup(),
 	"zerolog": zerolog.Setup(),
 	"logrus":  logrus.Setup(),
+	"phuslog": phuslog.Setup(),
 }
 
 func setupTermSigInterceptor() func() bool {
